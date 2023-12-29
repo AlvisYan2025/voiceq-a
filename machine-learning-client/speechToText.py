@@ -1,6 +1,3 @@
-# pylint: disable=invalid-name
-# pylint: disable=no-member
-# pylint: disable=import-error
 """use Google Cloud Speech-To-Text API"""
 import io
 from google.cloud import speech

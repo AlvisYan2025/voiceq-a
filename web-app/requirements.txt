@@ -3,3 +3,5 @@ flask
 pydub
 requests
 fuzzywuzzy
+passlib
+flask-session

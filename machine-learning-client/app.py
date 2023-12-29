@@ -19,7 +19,7 @@ def recognize_and_save(my_id=1):
 @app.route("/", methods=["GET"])
 def test():
     """for testing purpose, this will display a message when a connection is successful"""
-    response = make_response(jsonify({"message": "hi"}))
+    response = make_response(jsonify({"message": "connection established"}))
     return response
 
 

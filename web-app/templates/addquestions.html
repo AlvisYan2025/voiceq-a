@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <form>
+      <div id="question-list">
+        <div class="card question-container">
+            <div class="card-body">
+            <h5 class="card-title">Question 1</h5>
+            <div class="form-group">
+                <label for="question1">Question:</label>
+                <textarea class="form-control" name="question" rows="3" required></textarea>
+                <label for="answer1">Answer:</label>
+                <textarea class="form-control"  name="answer" rows="3" required></textarea>
+            </div>
+            <button type="button" class="add-another-question btn btn-primary" onclick='addQuestion()'>Add Another Question</button>
+            </div>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button type="submit" class="btn btn-success" id="question-set-submit">Submit</button>
+      </div>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='javascript/questions.js') }}"></script>
+{% endblock %}

@@ -2,37 +2,26 @@
 """Import modules"""
 import random
 import os
-import requests  # third-party import should be placed first
-from flask import Flask, jsonify, request, render_template, make_response
+import requests  
+import fuzzywuzzy as fuzz
+from passlib.hash import bcrypt_sha256
+from flask import Flask, jsonify, request, render_template, make_response, session, redirect
+from flask_session import Session
+from datetime import datetime
 import db
 
 
 app = Flask(__name__, template_folder="templates")
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './sessions'
+app.config['SESSION_KEY_PREFIX'] = 'test_'
+Session(app)
+
 # Set up the upload folder for audio files
 UPLOAD_FOLDER = "uploads"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 current_question = None  # pylint: disable=invalid-name
 correct_answer = ""  # pylint: disable=invalid-name
-
-
-def generate_question():
-    """Function to generate a random addition or
-    subtraction problem and set it as the current question"""
-    global current_question  # pylint: disable=global-statement
-    num1 = random.randint(1, 9)
-    num2 = random.randint(1, num1)
-    operation = random.choice(["+", "-"])
-    global correct_answer  # pylint: disable=global-statement
-    correct_answer = str(
-        eval(f"{num1} {operation} {num2}")  # pylint: disable=eval-used
-    )
-    current_question = {
-        "num1": num1,
-        "num2": num2,
-        "operation": operation,
-        "correct_answer": correct_answer,
-    }
-
 
 def get_transcript():
     """Function to get the most recent transcript from an external service"""
@@ -43,12 +32,20 @@ def get_transcript():
         return transcript
     return "There is an error fetching a transcript"
 
+def check_answer(ans1, ans2):
+    """helper function to compare the input with the actual answer"""
+    ratio = fuzz.ratio(ans1, ans2)
+    if (ratio>=60):
+        return True 
+    return False 
 
 @app.route("/")
 def index():
     """Define a route for the home page"""
-    generate_question()
-    return render_template("VoiceMath.html", current_question=current_question)
+    if ('user_id' in session):
+        return render_template("homepage.html", user=session['user_id'])
+    else:
+         return render_template("homepage.html")
 
 
 @app.route("/upload-audio", methods=["POST"])
@@ -79,61 +76,90 @@ def upload_audio():
     )
     return response
 
+@app.route("/upload", methods=['GET'])
+def show_upload_screen():
+    """show screen to upload new question set"""
+    return render_template("addquestions.html")
 
-@app.route("/cheat", methods=["GET"])
-def give_hint():
-    """It will secretly tell you the answer"""
-    message = "Wow, you have found me. I will give a hint"
-    possible_answers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
-    hint = (
-        "the answer is less than 10!"
-        if correct_answer in possible_answers
-        else "the answer is more than 10!"
-    )
-    response = make_response(jsonify({"message": message, "hint": hint}))
-    return response
+@app.route("/login", methods=["GET"])
+def show_login_screen():
+    """show login screen"""
+    message = request.args.get('message')
+    if message:
+        return render_template('login.html',message=message)
+    if ('user_id' in session):
+        return render_template("homepage.html", message = 'you are logged in')
+    return render_template("login.html")
 
+@app.route("/register", methods = ["GET"])
+def show_registration_screen():
+    return render_template("register.html")
 
-@app.route("/gimmeanswer", methods=["GET"])
-def show_answer():
-    """It will secretly tell you the answer"""
-    assert correct_answer != ""
-    response = make_response(jsonify({"answer": correct_answer}))
-    return response
+@app.route("/my-profile", methods=["GET"])
+def show_profile_screen():
+    """show user profile"""
+    if ('user_id' in session):
+        return render_template('my-profile.html', user=session['user_id'])
+    else:
+        return render_template('homepage.html')
 
+@app.route("/about", methods=["GET"])
+def show_info_screen():
+    """show info and instructions screen"""
+    return render_template("about.html")
 
-@app.route("/instruction", methods=["GET"])
-def show_instruction():
-    """Shows instructions"""
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>instructions</title>
-    </head>
-    <body>
-        <h1>Hello!</h1>
-        <br>
-        <p>Thanks for using VoiceMath.</p>
-        <p>This app is presented by the goat group.</p>
-        <!-- ... (content unchanged) ... -->
-    </body>
-    </html>
-    """
-    return html_content
+@app.route("/logout", methods=['GET'])
+def logout():
+    """logout current user"""
+    if ('user_id') in session:
+        session.pop('user_id', None)
+    return redirect('/')
 
+@app.route('/upload', methods=['POST'])
+def upload_question_set():
+    data = request.get_json()
+    question_list = data.get('questions')
+    print(question_list)
+    new_question_list ={
+        'user': None,
+        'shared': False,
+        'time': datetime.now(),
+        'questions': [],
+    }
+    for question in question_list:
+        print(question)
+        q = question['question']
+        a = question['answer']
+        new_question_list["questions"].append({'question':q,"answer":a,})
+    if session['user_id']:
+        new_question_list['user']=session['user_id']
+    db.upload_problem_set(new_question_list)
+    return redirect('/')
 
-@app.route("/test", methods=["GET"])
-def test_connection():
-    """Test connection"""
-    response = make_response(jsonify({"message": "hi"}))
-    return response
+@app.route('/login', methods=['POST'])
+def login():
+    user = request.form.get('user')
+    password = request.form.get('password')
+    print(user,password)
+    #TODO: check in db 
+    if (db.check_user_and_pin(user, password)):
+        session['user_id']=user
+        return redirect('/')
+    else:
+        return redirect('/login?message=invalid credentials')
 
+@app.route('/register', methods=['POST'])
+def register_user():
+    user = request.form.get('user')
+    password = request.form.get('password')
+    if (db.check_user_and_pin(user, password)):
+        return redirect('/login?message=user existed')
+    db.add_new_user(user, password)
+    session['user_id']=user
+    return redirect('/')
 
 def create_app():
-    """return an app object"""
+    """return an app object, used for testing"""
     return app
 
 

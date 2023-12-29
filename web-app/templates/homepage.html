@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Your App{% endblock %}
+
+{% block header %}Recently Uploaded and Saved Problems{% endblock %}
+
+{% block content %}
+  <div class="container mt-4 recent-uploaded">
+    <h2>Recently Uploaded</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Problem Set 1</h5>
+            <p class="card-text">A brief description of the problem set.</p>
+            <a href="#" class="btn btn-primary">View Details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mt-4 separation-line">
+    <div class="line"></div>
+  </div>
+
+  <div class="container mt-4 saved">
+    <h2>Saved Problems</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Problem Set 1</h5>
+            <p class="card-text">A brief description of the problem set.</p>
+            <a href="#" class="btn btn-primary">View Details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
