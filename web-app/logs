@@ -1,8 +1,4 @@
 TODO
-1. add sample data
-2. refine db.py -- add functions 
-3. add styles to homepage 
-4. make logins 
-5. make add question set functionality
+-- 5. make record functionality work 
 6. make show personal profiles, show questions 
 7. reconnect to mlc 

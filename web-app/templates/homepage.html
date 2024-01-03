@@ -7,7 +7,7 @@
 {% block content %}
   <div class="container mt-4 recent-uploaded">
     <h2>Recently Uploaded</h2>
-    <div class="row">
+    <div id="recent-ps-list" class="row">
       <div class="col-md-4">
         <div class="card">
           <div class="card-body">
@@ -26,7 +26,7 @@
 
   <div class="container mt-4 saved">
     <h2>Saved Problems</h2>
-    <div class="row">
+    <div id = 'saved-ps-list' class="row">
       <div class="col-md-4">
         <div class="card">
           <div class="card-body">
@@ -38,4 +38,24 @@
       </div>
     </div>
   </div>
+  
+  <div class="container mt-4 separation-line">
+    <div class="line"></div>
+  </div>
+
+  <div class="container mt-4 saved">
+    <h2>My Problems</h2>
+    <div id="my-ps-list" class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Problem Set 1</h5>
+            <p class="card-text">A brief description of the problem set.</p>
+            <a href="#" class="btn btn-primary">View Details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='javascript/index.js') }}"></script>
 {% endblock %}

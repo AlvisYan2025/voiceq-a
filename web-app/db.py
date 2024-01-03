@@ -3,15 +3,14 @@ from pymongo.mongo_client import MongoClient
 import json 
 from bson import ObjectId
 
-connection_string = "mongodb://db:27017/?directConnection=true&appName=mongosh+2.1.0"
+
 #client = MongoClient("mongodb://db:27017")
-client = MongoClient('connection_string')
-print(client)
+connection_string = "mongodb://localhost:27017/voiceqhub"
+client = MongoClient(connection_string)
 db = client["voiceqhub"]
-print(db)
 users = db["users"]
 ps = db["questionSets"]
-ps.insert_one({'test':'test'})
+ps.delete_many({})
 def load_starter_data():
     with open('users.json') as users_file:
         users_data = json.load(users_file)
@@ -22,16 +21,26 @@ def load_starter_data():
     ps.insert_many(question_sets_data['questionSets'])
 
 def find_ps_with_user(user):
-    ps.find({'user':user})
+    return list(ps.find({'user':user}))
+
+def find_saved_ps(user):
+    curr_user = users.find_one({'username':user})
+    saved_ps = curr_user['saved']
+    saved_ps_list = []
+    for pid in saved_ps:
+        problem_set = ps.find_one({'pid':pid})
+        if (problem_set):
+            saved_ps_list.append(problem_set)
+    return saved_ps_list
 
 def find_ps_with_id(id):
-    ps.find({"__id":id})
+    return ps.find_one({"qid": id})
 
 def get_most_recent_ps():
-    ps.find({})
+    return list(ps.find({}))
 
 def find_user(user):
-    return users.find({'user':user})
+    return list(users.find({'user':user}))
 
 def check_user_and_pin(id, password):
     this_user = users.find({'user':id, 'password':password})
@@ -61,6 +70,7 @@ def add_new_user(username, password):
     new_user = {
         'username':username,
         'password':password,
+        'saved': [],
     }
     users.insert_one(new_user)
     return 

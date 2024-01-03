@@ -57,17 +57,19 @@ function submit_question_set(evt) {
         };
         questionsArray.push(questionObject);
     });
+    // get name and description 
+    const ps_name = document.querySelector('.form-name').value || 'new problem set';
+    const ps_des = document.querySelector('.form-des').value || '';
     const url = '/upload';
     const options = {
         method:'POST',
         headers:{
             'Content-Type': 'application/json',
         },
-        body:JSON.stringify({'questions':questionsArray}),
+        body:JSON.stringify({'questions':questionsArray, 'name':ps_name, 'description':ps_des}),
     }
-    fetch(url,options).then(()=>console.log('answers uploaded!'));
+    fetch(url,options).then(()=>console.log('answers uploaded!')).then(()=>{window.location.href = "/";});
 }
 
-console.log('load');
 const submit_btn = document.getElementById('question-set-submit');
 submit_btn.addEventListener('click',submit_question_set);

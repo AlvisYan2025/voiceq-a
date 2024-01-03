@@ -7,6 +7,7 @@ import fuzzywuzzy as fuzz
 from passlib.hash import bcrypt_sha256
 from flask import Flask, jsonify, request, render_template, make_response, session, redirect
 from flask_session import Session
+import uuid 
 from datetime import datetime
 import db
 
@@ -95,6 +96,23 @@ def show_login_screen():
 def show_registration_screen():
     return render_template("register.html")
 
+@app.route("/ps", methods=["GET"])
+def get_problem_set():
+    user = request.args.get('user')
+    saved = request.args.get('saved')
+    if (user and saved):
+        problem_sets=db.find_saved_ps(user)
+    elif (user):
+        problem_sets = db.find_ps_with_user(user)
+    else:
+        problem_sets = db.get_most_recent_ps()
+    for doc in problem_sets:
+        doc['_id'] = str(doc['_id'])
+    print(problem_sets)
+    response = jsonify({"problem_sets": problem_sets,})
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
 @app.route("/my-profile", methods=["GET"])
 def show_profile_screen():
     """show user profile"""
@@ -115,15 +133,26 @@ def logout():
         session.pop('user_id', None)
     return redirect('/')
 
+@app.route("/question", methods=['GET'])
+def get_question():
+    qid = request.args.get('qid')
+    ps = db.find_ps_with_id(qid)
+    return render_template('question.html',qid=qid, name=ps['name'], description=ps['description'],time=ps['time'],questions=ps['questions'])
+
 @app.route('/upload', methods=['POST'])
 def upload_question_set():
     data = request.get_json()
     question_list = data.get('questions')
+    name = data.get('name')
+    description = data.get('description')
     print(question_list)
     new_question_list ={
         'user': None,
+        'name': name,
+        'description': description,
         'shared': False,
         'time': datetime.now(),
+        'qid': str(uuid.uuid4()),
         'questions': [],
     }
     for question in question_list:
@@ -131,7 +160,7 @@ def upload_question_set():
         q = question['question']
         a = question['answer']
         new_question_list["questions"].append({'question':q,"answer":a,})
-    if session['user_id']:
+    if 'user_id' in session:
         new_question_list['user']=session['user_id']
     db.upload_problem_set(new_question_list)
     return redirect('/')

@@ -5,3 +5,4 @@ requests
 fuzzywuzzy
 passlib
 flask-session
+uuid

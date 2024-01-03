@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<p>{{qid}}</p>
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/ps.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ name }}</h1>
+        <p><strong>Time:</strong> {{ time }}</p>
+        <p><strong>Description:</strong> {{ description }}</p>
+
+        <div id="questions-container">
+            <h2>Questions</h2>
+            <div id="question-list">
+                {% for question in questions %}
+                    <div class="question">
+                        <span class="question-number">Question {{ loop.index }}</span>
+                        <strong>Question:</strong> {{ question.question }}<br>
+                        <strong>Answer:</strong> {{ question.answer }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="control-button" onclick="showPreviousQuestion()">Previous Question</button>
+            <img src="{{ url_for('static', filename='images/microphone.png') }}" class="microphone-button" onclick="recordAudio()">
+            <button class="control-button" onclick="showNextQuestion()">Next Question</button>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='javascript/ps.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/gh/mattdiamond/Recorderjs@08e7abd9/dist/recorder.js"></script>
+</body>
+{% endblock %}
