@@ -74,4 +74,3 @@ def add_new_user(username, password):
     }
     users.insert_one(new_user)
     return 
-

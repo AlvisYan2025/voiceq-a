@@ -28,9 +28,8 @@ def get_transcript():
     """Function to get the most recent transcript from an external service"""
     target_url = "http://mlc:3000/transcript"
     response = requests.get(target_url)  # pylint: disable=missing-timeout
-    if response.ok:
-        transcript = db.get_most_recent_transcript()
-        return transcript
+    if response:
+        return response.transcript
     return "There is an error fetching a transcript"
 
 def check_answer(ans1, ans2):
@@ -61,17 +60,10 @@ def upload_audio():
     # Get the transcript and compare it with the correct answer
     transcript = get_transcript() or "Please say again"
     transcript = str(transcript.strip())
-    is_right = (
-        "Correct!" if transcript == correct_answer else "Wrong!"
-    )  # pylint: disable=invalid-name
-    # Create a JSON response with the transcript,
-    # correctness, and correct answer
     response = make_response(
         jsonify(
             {
                 "transcript": transcript,
-                "isRight": is_right,
-                "correct_answer": correct_answer,
             }
         )
     )

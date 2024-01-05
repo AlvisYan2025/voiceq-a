@@ -58,7 +58,7 @@ strong {
     cursor: pointer;
 }
 
-.microphone-button {
+#microphone-button {
     background-color: #009688;
     color: #fff;
     padding: 10px 15px;
@@ -69,4 +69,10 @@ strong {
     margin-left: 10px;
     height: 50px;
     width: auto;
+}
+.recording {
+    background-color: red;
+}
+.hidden{
+    display: hidden;
 }
