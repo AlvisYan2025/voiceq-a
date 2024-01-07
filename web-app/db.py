@@ -4,9 +4,9 @@ import json
 from bson import ObjectId
 
 #docker >>
-connection_string= "mongodb://db:27017"
+#connection_string= "mongodb://db:27017"
 #local client >>
-#connection_string = "mongodb://localhost:27017/voiceqhub"
+connection_string = "mongodb://localhost:27017/voiceqhub"
 client = MongoClient(connection_string)
 db = client["voiceqhub"]
 users = db["users"]
@@ -27,8 +27,8 @@ def find_saved_ps(user):
     curr_user = users.find_one({'username':user})
     saved_ps = curr_user['saved']
     saved_ps_list = []
-    for pid in saved_ps:
-        problem_set = ps.find_one({'pid':pid})
+    for qid in saved_ps:
+        problem_set = ps.find_one({'qid':qid})
         if (problem_set):
             saved_ps_list.append(problem_set)
     return saved_ps_list
@@ -41,6 +41,20 @@ def get_most_recent_ps():
 
 def find_user(user):
     return list(users.find({'user':user}))
+
+def save_ps(username, qid):
+    user_document = users.find_one({'username': username})
+
+    if user_document:
+        # Update the 'saved' field by adding qid to the list
+        users.update_one(
+            {'_id': ObjectId(user_document['_id'])},
+            {'$addToSet': {'saved': qid}}
+        )
+        print(f'Question with ID {qid} added to the "saved" list for user {username}')
+    else:
+        print(f'User with username {username} not found')
+
 
 def check_user_and_pin(id, password):
     this_user = users.find_one({'user':id, 'password':password})

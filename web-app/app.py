@@ -95,13 +95,15 @@ def show_registration_screen():
 
 @app.route("/ps", methods=["GET"])
 def get_problem_set():
-    if ('user' in session):
-        problem_sets_user=db.find_saved_ps(session['user'])
+    if ('user_id' in session):
+        print(session['user_id'])
+        problem_sets_user=db.find_ps_with_user(session['user_id'])
         for doc in problem_sets_user:
             doc['_id'] = str(doc['_id'])
-        problem_sets_saved=db.find_saved_ps(session['user'])
+        problem_sets_saved=db.find_saved_ps(session['user_id'])
         for doc in problem_sets_saved:
-                doc['_id'] = str(doc['_id'])
+            doc['_id'] = str(doc['_id'])
+        print(problem_sets_user, problem_sets_saved)
     else:
         problem_sets_user = None 
         problem_sets_saved = None
@@ -115,6 +117,14 @@ def get_problem_set():
     })
     response.headers['Content-Type'] = 'application/json'
     return response
+
+@app.route("/save", methods=["GET"])
+def save_ps():
+    """save a problem set"""
+    qid = request.args.get('qid')
+    if ('user_id' in session):
+        db.save_ps(session['user_id'],qid)
+    return redirect('/')
 
 @app.route("/my-profile", methods=["GET"])
 def show_profile_screen():
