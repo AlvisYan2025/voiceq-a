@@ -6,9 +6,20 @@ function addQuestion() {
     var newQuestionContainer = questionContainer.cloneNode(true);
     newQuestionContainer.querySelector('.card-title').textContent = 'Question ' + questionNumber;
     newQuestionContainer.querySelectorAll('textarea').forEach((text)=>text.value='');
+    //remove existing button 
+    if (newQuestionContainer.querySelector('.remove-question')){
+        newQuestionContainer.querySelector('.remove-question').remove();
+    }
+    // Add "Remove Question" button
+    var removeQuestionButton = document.createElement('button');
+    removeQuestionButton.type = 'button';
+    removeQuestionButton.classList.add('remove-question', 'btn', 'btn-danger');
+    removeQuestionButton.textContent = 'Remove Question';
+    removeQuestionButton.onclick = function () {
+        removeQuestion(newQuestionContainer);
+    };
+    newQuestionContainer.querySelector('.card-body').appendChild(removeQuestionButton);
     //remove previous add question button 
-    console.log(allQuestions);
-    console.log(questionNumber);
     const last_add_btn = allQuestions[questionNumber-2].querySelector('.add-another-question');
     last_add_btn.classList.add('hidden');
     //append new question
@@ -30,6 +41,23 @@ function isTextareasEmpty() {
         }
     });
     return isEmpty;
+}
+function removeQuestion(questionContainer) {
+    // Remove the clicked question container
+    console.log('remove question')
+    questionContainer.remove();
+
+    // Update the card titles of remaining questions
+    var allQuestions = document.querySelectorAll('.question-container');
+    allQuestions.forEach(function (container, index) {
+        container.querySelector('.card-title').textContent = 'Question ' + (index + 1);
+    });
+
+    // Show the "Add Another Question" button for the last question
+    if (allQuestions.length > 0) {
+        const lastAddBtn = allQuestions[allQuestions.length - 1].querySelector('.add-another-question');
+        lastAddBtn.classList.remove('hidden');
+    }
 }
 function submit_question_set(evt) {
     console.log("evt",evt);
