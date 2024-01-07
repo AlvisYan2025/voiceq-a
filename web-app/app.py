@@ -27,10 +27,15 @@ correct_answer = ""  # pylint: disable=invalid-name
 def get_transcript():
     """Function to get the most recent transcript from an external service"""
     target_url = "http://mlc:3000/transcript"
-    response = requests.get(target_url)  # pylint: disable=missing-timeout
-    if response:
-        return response.transcript
-    return "There is an error fetching a transcript"
+    response = requests.get(target_url)
+
+    if response.status_code == 200:
+        json_data = response.json()
+        transcript = json_data.get("transcript", "")
+        print(transcript)
+        return transcript
+    else:
+        print("Error:", response.status_code)
 
 def check_answer(ans1, ans2):
     """helper function to compare the input with the actual answer"""
@@ -90,18 +95,24 @@ def show_registration_screen():
 
 @app.route("/ps", methods=["GET"])
 def get_problem_set():
-    user = request.args.get('user')
-    saved = request.args.get('saved')
-    if (user and saved):
-        problem_sets=db.find_saved_ps(user)
-    elif (user):
-        problem_sets = db.find_ps_with_user(user)
+    if ('user' in session):
+        problem_sets_user=db.find_saved_ps(session['user'])
+        for doc in problem_sets_user:
+            doc['_id'] = str(doc['_id'])
+        problem_sets_saved=db.find_saved_ps(session['user'])
+        for doc in problem_sets_saved:
+                doc['_id'] = str(doc['_id'])
     else:
-        problem_sets = db.get_most_recent_ps()
+        problem_sets_user = None 
+        problem_sets_saved = None
+    problem_sets = db.get_most_recent_ps()
     for doc in problem_sets:
         doc['_id'] = str(doc['_id'])
-    print(problem_sets)
-    response = jsonify({"problem_sets": problem_sets,})
+    response = jsonify({
+        "problem_sets": problem_sets,
+        "user": problem_sets_user,
+        "saved": problem_sets_saved,
+    })
     response.headers['Content-Type'] = 'application/json'
     return response
 

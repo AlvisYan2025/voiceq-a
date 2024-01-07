@@ -3,14 +3,14 @@ from pymongo.mongo_client import MongoClient
 import json 
 from bson import ObjectId
 
-
-#client = MongoClient("mongodb://db:27017")
-connection_string = "mongodb://localhost:27017/voiceqhub"
+#docker >>
+connection_string= "mongodb://db:27017"
+#local client >>
+#connection_string = "mongodb://localhost:27017/voiceqhub"
 client = MongoClient(connection_string)
 db = client["voiceqhub"]
 users = db["users"]
 ps = db["questionSets"]
-ps.delete_many({})
 def load_starter_data():
     with open('users.json') as users_file:
         users_data = json.load(users_file)
@@ -43,7 +43,8 @@ def find_user(user):
     return list(users.find({'user':user}))
 
 def check_user_and_pin(id, password):
-    this_user = users.find({'user':id, 'password':password})
+    this_user = users.find_one({'user':id, 'password':password})
+    print(this_user)
     if (this_user):
         return True 
     else:

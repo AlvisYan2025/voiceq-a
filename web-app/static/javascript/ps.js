@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let input;
     let rec;
     let gumStream;
-    let audioChunks = [];
 
     // Event listener for the "Record" button
     recordButton.addEventListener('click', () => {
@@ -69,11 +68,12 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             // Display the transcript, correctness, and correct answer
             const transcript = data.transcript;
-            console.log('received transcript');
+            console.log('received transcript', transcript);
             const transcript_section = document.getElementById('transcript');
             transcript_section.innerText = transcript;
             const wr = document.getElementById('wr');
-            const currQuestion = document.querySelector('.question:is([style*="display: block"]):first-child');
+            const questions = document.querySelectorAll('.question');
+            const currQuestion = questions[currentQuestionIndex];
             const correct_answer = currQuestion.id;
             if (correct_answer === transcript){
                 wr.innerText = "correct!";

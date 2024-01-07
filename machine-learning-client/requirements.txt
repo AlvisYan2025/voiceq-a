@@ -1,7 +1,4 @@
 google-cloud-speech
 pydub
 Flask
-pymongo
-datetime
-fuzzywuzzy
 pytest
