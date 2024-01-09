@@ -33,6 +33,10 @@ def find_saved_ps(user):
             saved_ps_list.append(problem_set)
     return saved_ps_list
 
+def delete_qs(qid):
+    ps.delete_one({'qid':qid})
+    return 
+
 def find_ps_with_id(id):
     return ps.find_one({"qid": id})
 

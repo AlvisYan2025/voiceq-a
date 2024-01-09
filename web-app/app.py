@@ -130,7 +130,8 @@ def save_ps():
 def show_profile_screen():
     """show user profile"""
     if ('user_id' in session):
-        return render_template('my-profile.html', user=session['user_id'])
+        problem_sets_user=db.find_ps_with_user(session['user_id'])
+        return render_template('my-profile.html', user=session['user_id'], ps=problem_sets_user)
     else:
         return render_template('homepage.html')
 
@@ -151,6 +152,12 @@ def get_question():
     qid = request.args.get('qid')
     ps = db.find_ps_with_id(qid)
     return render_template('question.html',qid=qid, name=ps['name'], description=ps['description'],time=ps['time'],questions=ps['questions'])
+
+@app.route("/remove", methods=["GET"])
+def delete_question_set():
+    qid = request.args.get('qid')
+    db.delete_qs(qid)
+    return redirect('/my-profile')
 
 @app.route('/upload', methods=['POST'])
 def upload_question_set():

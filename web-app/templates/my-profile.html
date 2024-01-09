@@ -1,5 +1,66 @@
 {% extends 'base.html' %}
 {% block content %}
-hello {{user}}
-<a href="/logout"><button>log out</button></a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        width: 300px; 
+        height: auto;
+        margin-bottom: 10px; 
+        padding: 10px; 
+        background-color: #f8d7da; 
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn {
+    padding: 8px 12px;
+    font-size: 14px;
+    margin-right: 10px;
+    cursor: pointer;
+    width: 120px; 
+    }
+
+    .btn-danger {
+    background-color: #dc3545; 
+    color: #ffffff;
+    }
+
+    .btn-warning {
+    background-color: #ffc107; 
+    color: #212529;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Welcome, {{ user }}</h1>
+  </header>
+
+  <div class="container">
+    <h4>Your Uploads</h4>
+    {% for ps in ps %}
+      <div class="card">
+        <h3>{{ ps['name'] }}</h3>
+        <p>{{ ps['description'] }}</p>
+        <a href="/remove?qid={{ps.qid}}"><button class="btn btn-danger" >Remove Question Set</button></a>
+        <a href="/question?qid={{ps.qid}}"><button class="btn btn-warning">View Question Set</button></a>
+      </div>
+    {% endfor %}
+  </div>
+
+</body>
+</html>
+
 {% endblock %}
