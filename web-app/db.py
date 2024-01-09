@@ -2,6 +2,7 @@
 from pymongo.mongo_client import MongoClient
 import json 
 from bson import ObjectId
+from passlib.hash import bcrypt_sha256
 
 #docker >>
 #connection_string= "mongodb://db:27017"
@@ -61,9 +62,8 @@ def save_ps(username, qid):
 
 
 def check_user_and_pin(id, password):
-    this_user = users.find_one({'user':id, 'password':password})
-    print(this_user)
-    if (this_user):
+    this_user = users.find_one({'username':id})
+    if (this_user and bcrypt_sha256.verify(password,this_user['password'])):
         return True 
     else:
         return False 

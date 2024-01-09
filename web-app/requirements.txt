@@ -4,5 +4,6 @@ pydub
 requests
 fuzzywuzzy
 passlib
+bcrypt
 flask-session
 uuid

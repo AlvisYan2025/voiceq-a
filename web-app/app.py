@@ -1,6 +1,5 @@
 # pylint: disable=no-member
 """Import modules"""
-import random
 import os
 import requests  
 import fuzzywuzzy as fuzz
@@ -39,6 +38,7 @@ def get_transcript():
 
 def check_answer(ans1, ans2):
     """helper function to compare the input with the actual answer"""
+    #currently not in use
     ratio = fuzz.ratio(ans1, ans2)
     if (ratio>=60):
         return True 
@@ -46,7 +46,7 @@ def check_answer(ans1, ans2):
 
 @app.route("/")
 def index():
-    """Define a route for the home page"""
+    """display the home page"""
     if ('user_id' in session):
         return render_template("homepage.html", user=session['user_id'])
     else:
@@ -91,10 +91,12 @@ def show_login_screen():
 
 @app.route("/register", methods = ["GET"])
 def show_registration_screen():
+    """show screen to register new user"""
     return render_template("register.html")
 
 @app.route("/ps", methods=["GET"])
 def get_problem_set():
+    """api to serve all question sets"""
     if ('user_id' in session):
         print(session['user_id'])
         problem_sets_user=db.find_ps_with_user(session['user_id'])
@@ -149,18 +151,21 @@ def logout():
 
 @app.route("/question", methods=['GET'])
 def get_question():
+    """api to serve one question set"""
     qid = request.args.get('qid')
     ps = db.find_ps_with_id(qid)
     return render_template('question.html',qid=qid, name=ps['name'], description=ps['description'],time=ps['time'],questions=ps['questions'])
 
 @app.route("/remove", methods=["GET"])
 def delete_question_set():
+    """remove a question set from the database"""
     qid = request.args.get('qid')
     db.delete_qs(qid)
     return redirect('/my-profile')
 
 @app.route('/upload', methods=['POST'])
 def upload_question_set():
+    """uploads a quesetion set to the database"""
     data = request.get_json()
     question_list = data.get('questions')
     name = data.get('name')
@@ -187,9 +192,9 @@ def upload_question_set():
 
 @app.route('/login', methods=['POST'])
 def login():
+    """receive credencials from the from and verify in the db. If authenticated, log the user in """
     user = request.form.get('user')
     password = request.form.get('password')
-    print(user,password)
     #TODO: check in db 
     if (db.check_user_and_pin(user, password)):
         session['user_id']=user
@@ -199,11 +204,13 @@ def login():
 
 @app.route('/register', methods=['POST'])
 def register_user():
+    """register new user"""
     user = request.form.get('user')
     password = request.form.get('password')
     if (db.check_user_and_pin(user, password)):
         return redirect('/login?message=user existed')
-    db.add_new_user(user, password)
+    hashed_password = bcrypt_sha256.hash(password)
+    db.add_new_user(user, hashed_password)
     session['user_id']=user
     return redirect('/')
 
