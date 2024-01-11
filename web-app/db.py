@@ -3,11 +3,12 @@ from pymongo.mongo_client import MongoClient
 import json 
 from bson import ObjectId
 from passlib.hash import bcrypt_sha256
+from datetime import datetime
 
 #docker >>
-#connection_string= "mongodb://db:27017"
+connection_string= "mongodb://db:27017"
 #local client >>
-connection_string = "mongodb://localhost:27017/voiceqhub"
+#connection_string = "mongodb://localhost:27017/voiceqhub"
 client = MongoClient(connection_string)
 db = client["voiceqhub"]
 users = db["users"]
@@ -68,16 +69,6 @@ def check_user_and_pin(id, password):
     else:
         return False 
     
-def get_most_recent_transcript():
-    """fetch the most recent transcript from the database"""
-    '''try:
-        documents_with_time = collection.find({"time": {"$exists": True}})
-        most_recent_document = max(documents_with_time, key=lambda x: x["time"])
-        return most_recent_document["transcript"]
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        print(f"Error: {e}")
-        return None'''
-
 def upload_problem_set(new):
     try:
         ps.insert_one(new)
@@ -93,3 +84,35 @@ def add_new_user(username, password):
     }
     users.insert_one(new_user)
     return 
+
+def load_sample_data():
+    new_sample_user = {
+        'username': 'admin@123.com',
+        'password': bcrypt_sha256.hash('123'),
+        'saved': ['123123'],
+    }   
+    new_question_set ={
+        'user': 'admin@123.com',
+        'name': 'sample_ps_1',
+        'description': 'this is an example problem set. You can also add your own.',
+        'shared': True, 
+        'time': datetime.now(),
+        'qid': '123123',
+        'questions': [
+            {
+                'question': 'Please say hello',
+                'answer': 'hello',
+            },
+            {
+                'question': 'what is',
+                'answer': 'what',
+            }
+        ],
+    }
+    users.insert_one(new_sample_user)
+    ps.insert_one(new_question_set)
+
+# clear saved data upon restarting. comment off if dont need 
+users.delete_many({})
+ps.delete_many({})
+load_sample_data()
