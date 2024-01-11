@@ -45,5 +45,6 @@ def get_transcript():
     """main function"""
     input_wav = "uploads/audio.wav"
     output_wav = "curr.wav"
+    #turns current audio to single channel and then transcribe
     convert_stereo_to_mono(input_wav, output_wav)
     return run_quickstart(output_wav)

@@ -1,4 +1,5 @@
 # pylint: disable=no-member
+"""this is the 'main' app. It will interact with both the database and the voice recognition service to achive full functionality"""
 """Import modules"""
 import os
 import requests  
@@ -98,6 +99,7 @@ def show_registration_screen():
 def get_problem_set():
     """api to serve all question sets"""
     if ('user_id' in session):
+        #check user login status
         print(session['user_id'])
         problem_sets_user=db.find_ps_with_user(session['user_id'])
         for doc in problem_sets_user:
@@ -109,6 +111,7 @@ def get_problem_set():
     else:
         problem_sets_user = None 
         problem_sets_saved = None
+    #fetch problem sets from the database
     problem_sets = db.get_most_recent_ps()
     for doc in problem_sets:
         doc['_id'] = str(doc['_id'])

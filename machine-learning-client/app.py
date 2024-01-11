@@ -7,7 +7,8 @@ app = Flask(__name__)
 
 @app.route("/transcript", methods=["GET"])
 def recognize_and_save(my_id=1):
-    """fetch the transcript from the database"""
+    """api route which sends back transcript of uploaded audio"""
+    #uncomment if use db to send through transcript 
     my_id = request.args.get("Id")
     transcript = speechToText.get_transcript()
     response = make_response(jsonify({"transcript": transcript}))

@@ -1,3 +1,4 @@
+"""this is the module that handles database interactions"""
 """import pymongo"""
 from pymongo.mongo_client import MongoClient
 import json 
@@ -14,6 +15,8 @@ db = client["voiceqhub"]
 users = db["users"]
 ps = db["questionSets"]
 def load_starter_data():
+    """load starter data from local file"""
+    #currently not used
     with open('users.json') as users_file:
         users_data = json.load(users_file)
 
@@ -23,9 +26,11 @@ def load_starter_data():
     ps.insert_many(question_sets_data['questionSets'])
 
 def find_ps_with_user(user):
+    """search for a problem set associated with the specified user"""
     return list(ps.find({'user':user}))
 
 def find_saved_ps(user):
+    """search for all saved problem set associated with the specified user"""
     curr_user = users.find_one({'username':user})
     saved_ps = curr_user['saved']
     saved_ps_list = []
@@ -36,19 +41,24 @@ def find_saved_ps(user):
     return saved_ps_list
 
 def delete_qs(qid):
+    """delete a question set with the specified id"""
     ps.delete_one({'qid':qid})
     return 
 
 def find_ps_with_id(id):
+    """find a question set with the specified id"""
     return ps.find_one({"qid": id})
 
 def get_most_recent_ps():
+    """get all question sets"""
     return list(ps.find({}))
 
 def find_user(user):
+    """find a registered user from the database"""
     return list(users.find({'user':user}))
 
 def save_ps(username, qid):
+    """save a problem set into the database"""
     user_document = users.find_one({'username': username})
 
     if user_document:
@@ -63,6 +73,7 @@ def save_ps(username, qid):
 
 
 def check_user_and_pin(id, password):
+    """verify login credentials with data in the database"""
     this_user = users.find_one({'username':id})
     if (this_user and bcrypt_sha256.verify(password,this_user['password'])):
         return True 
@@ -70,6 +81,7 @@ def check_user_and_pin(id, password):
         return False 
     
 def upload_problem_set(new):
+    """upload a new problem set"""
     try:
         ps.insert_one(new)
     except(Exception):
@@ -77,6 +89,7 @@ def upload_problem_set(new):
     return 
 
 def add_new_user(username, password):
+    """add a new user to the database"""
     new_user = {
         'username':username,
         'password':password,
@@ -86,6 +99,7 @@ def add_new_user(username, password):
     return 
 
 def load_sample_data():
+    """load some example documents to upon server starting"""
     new_sample_user = {
         'username': 'admin@123.com',
         'password': bcrypt_sha256.hash('123'),
