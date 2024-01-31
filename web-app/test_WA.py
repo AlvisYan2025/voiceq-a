@@ -34,21 +34,8 @@ def test_index(client):
 
 def test_upload_audio(client):
     """test upload audio function"""
-    response = client.get("/upload-audio")
-    assert response
-
-
-def test_connection(client):
-    """test connection to app"""
-    response = client.get("/test")
+    response = client.get("/upload")
     assert response.status_code == 200
-
-
-def test_index_route(client):
-    """test index route"""
-    response = client.get("/")
-    assert response.status_code == 200
-    assert b"current_question" in response.data
 
 
 def test_upload_audio_post(client, monkeypatch):
@@ -60,25 +47,17 @@ def test_upload_audio_post(client, monkeypatch):
     assert response
 
 
-def test_cheat(client):
-    """test cheat route"""
-    response = client.get("/cheat")
+def test_login(client):
+    """test login route"""
+    response = client.get("/login")
     assert response.status_code == 200
 
-
-def test_show_answer(client):
-    """test show answer route"""
-    response = client.get("/gimmeanswer")
+def test_registration(client):
+    """test registration route"""
+    response = client.get("/register")
     assert response.status_code == 200
 
-
-def test_instruction(client):
-    """test instruction route"""
-    response = client.get("/instruction")
+def test_get_ps(client):
+    """test get problem set"""
+    response = client.get("/ps")
     assert response.status_code == 200
-
-
-def test_db_error():
-    """test behavior if db error"""
-    message = get_most_recent_transcript()
-    assert message is None
